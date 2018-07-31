@@ -1,5 +1,3 @@
-# ottr
-
 # Automating Peer Reports Using IPEDS Data
 This is designed for use with IPEDS Access databases. 
 
