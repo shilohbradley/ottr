@@ -3,16 +3,6 @@
 # reports.                                       #
 ##################################################
 
-R_vector_to_SQL_vector <- function(v)
-{
-  my_str <- paste0("(", v[1])
-  for (i in v[2:length(v)]) {
-    my_str <- paste(my_str, i, sep = ",")
-  }
-  my_str <- paste0(my_str, ")")
-  return(my_str)
-}
-
 flexible_query <- function(metric, tablename, instnm_table)
 {
   my_q <- paste0("select a.UNITID, a.INSTNM as Institution, b.", metric," as y ",

@@ -29,6 +29,7 @@ shinyServer(function(input, output, session) {
 
   })
   
+  ## From: https://gist.github.com/psychemedia/9737637
   filedata <- reactive({
     infile <- input$datafile
     if (is.null(infile)) {
@@ -46,7 +47,7 @@ shinyServer(function(input, output, session) {
       theme = "mystyle.css",
       br(), br(),
       titlePanel("IPEDS Peer Reports"), br(),
-      h3("By the University of Nevada, Las Vegas"),
+      h3("Supported by the University of Nevada, Las Vegas"),
       br(), br(),
       br(), br(), 
       
