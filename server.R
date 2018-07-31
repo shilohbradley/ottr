@@ -16,32 +16,69 @@ library(openxlsx)
 library(data.table)
 library(magrittr)
 library(reshape2)
+library(RODBC)
 
 ## Load sources -----
-
+# source("load_data.R")
 
 ## Beginning of server -----
 shinyServer(function(input, output, session) {
+  
+  datasetInput <- reactive({
+
+  })
+  
+  filedata <- reactive({
+    infile <- input$datafile
+    if (is.null(infile)) {
+      # User has not uploaded a file yet
+      return(NULL)
+    }
+    read.csv(infile$datapath)
+  })
   
   ## Beginning of main body -----
   output$mainbody <- renderUI({
     ## Beginning of fluid page
     fluidPage(
       
-      # theme = "mystyle.css",
+      theme = "mystyle.css",
       br(), br(),
       titlePanel("IPEDS Peer Reports"),
-      br(), br(),
+      br(), br(), br(), br(),
       
       ## Sidebar and Subsetting Options -----
       sidebarLayout(
         sidebarPanel(
-          h3("Please select data: "),
-          br(), hr(),
           ## Subsetting options 
-          
+          h4("Upload"), br(),
+          fileInput("datafile", h6("Choose CSV file"),
+                    accept = c("text/csv", 
+                               "text/comma-separated-values,text/plain")),
           hr(),
-          ## Download options for subsetted data -----
+          
+          h4("Select"),
+          br(), 
+          selectInput(inputId = "column",
+                      label = h6("column"),
+                      choices = "pineapples belong on pizza",
+                      multiple = TRUE),
+          h4("from"),
+          selectInput(inputId = "table",
+                      label = h6("table"),
+                      choices = c("hello skip", "go rebels"),
+                      multiple = TRUE),
+          br(),
+          h4("join by"),
+          selectInput(inputId = "column",
+                      label = h6("column"),
+                      choices = "pineapples belong on pizza",
+                      multiple = TRUE),
+          br(),
+          hr(),
+          br(),
+          
+          ## Download options for subsetted data 
           downloadButton("downloadData", h5("Download Data")),
           downloadButton("downloadReport", h5("Download Report")),
           br(), br()
@@ -54,11 +91,9 @@ shinyServer(function(input, output, session) {
           tabsetPanel(type = "tabs",
                       ## Table
                       tabPanel("Data table", class = "one",
-                               div(HTML("<br><h2><b><center>IPEDS</center></b></h2></br>")),
                                DT::dataTableOutput("table")),
                       ## Report preview
                       tabPanel("Preview Report", class = "one",
-                               div(HTML("<br><h2><b><center>IPEDS</center></b></h2></br>")),
                                uiOutput("report"))
           ) ## End of Tabset Panel
         ) ## End of Main panel
