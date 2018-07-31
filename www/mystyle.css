@@ -3,7 +3,6 @@ body {
     background: #ffffff url("color-gray1.jpg") no-repeat right top;
     background-size: 100% 15%;
     color: #444444;
-    color: #000000;       
     font-family: 'Arial', sans-serif;
 }
 
@@ -22,8 +21,8 @@ h2 {
 
 h3 {
   font-family: 'Arial', sans-serif;
-  font-size: 25px;
-  color: #444444;
+  font-size: 15px;
+  color: #ffffff;
   display: inline;
 }
 
@@ -56,6 +55,7 @@ th {
 
 
 hr { 
+/*  
     display: block;
     margin-top: 0.5em;
     margin-bottom: 0.5em;
@@ -63,5 +63,6 @@ hr {
     margin-right: auto;
     border-style: inset;
     border-width: 1px;
+*/  
     border-color: #4b772f;
 } 

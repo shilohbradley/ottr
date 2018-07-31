@@ -20,6 +20,7 @@ library(RODBC)
 
 ## Load sources -----
 # source("load_data.R")
+# source("queries.R")
 
 ## Beginning of server -----
 shinyServer(function(input, output, session) {
@@ -44,21 +45,23 @@ shinyServer(function(input, output, session) {
       
       theme = "mystyle.css",
       br(), br(),
-      titlePanel("IPEDS Peer Reports"),
-      br(), br(), br(), br(),
+      titlePanel("IPEDS Peer Reports"), br(),
+      h3("By the University of Nevada, Las Vegas"),
+      br(), br(),
+      br(), br(), 
       
       ## Sidebar and Subsetting Options -----
       sidebarLayout(
         sidebarPanel(
           ## Subsetting options 
           h4("Upload"), br(),
-          fileInput("datafile", h6("Choose CSV file"),
+          fileInput(inputId = "datafile", 
+                    label = h6("Choose CSV file"),
                     accept = c("text/csv", 
                                "text/comma-separated-values,text/plain")),
           hr(),
           
-          h4("Select"),
-          br(), 
+          h4("Select"), br(), 
           selectInput(inputId = "column",
                       label = h6("column"),
                       choices = "pineapples belong on pizza",
