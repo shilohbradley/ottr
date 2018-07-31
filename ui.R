@@ -1,7 +1,5 @@
 ##################################################
-# This dashboard prototype is for subsetting
-# data and creating customized reports through a 
-# friendly Shiny based GUI.
+# A Shiny app for quick, custom IPEDS reports.   #
 ##################################################
 
 library(shiny)
