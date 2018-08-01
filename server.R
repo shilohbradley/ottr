@@ -22,13 +22,36 @@ library(RODBC)
 # source("load_data.R")
 # source("queries.R")
 
+## Load data -----
+# ay1213_df <- odbcConnectAccess2007("IPEDS201213.accdb")
+# ay1314_df <- odbcConnectAccess2007("IPEDS201314.accdb")
+# ay1415_df <- odbcConnectAccess2007("IPEDS201415.accdb")
+# ay1516_df <- odbcConnectAccess2007("IPEDS201516.accdb")
+# ay1617_df <- odbcConnectAccess2007("IPEDS201617.accdb")
+ay1213_df <- "meow"
+ay1314_df <- "howdy howdy howdy"
+ay1415_df <- "i'm sheriff woody"
+ay1516_df <- "quack"
+ay1617_df <- "hello"
+
+# table_choices <- unique(ay1617_df$vartable16)
+table_choices <- list("woof", "bark")
+
+## Functions -----
+preview_dt <- function(df) {
+
+  return(df)
+}
+
 ## Beginning of server -----
 shinyServer(function(input, output, session) {
   
   datasetInput <- reactive({
-
+    if (!is.null(input$ay)) {
+      df <- df[input$ay, ]
+    }
   })
-  
+   
   ## From: https://gist.github.com/psychemedia/9737637
   filedata <- reactive({
     infile <- input$datafile
@@ -56,13 +79,25 @@ shinyServer(function(input, output, session) {
         sidebarPanel(
           ## Subsetting options 
           h4("Upload"), br(),
-          fileInput(inputId = "datafile", 
+          fileInput(inputId = "", 
                     label = h6("Choose CSV file"),
                     accept = c("text/csv", 
                                "text/comma-separated-values,text/plain")),
           hr(),
           
           h4("Select"), br(), 
+          checkboxGroupInput(inputId = "ay", 
+                             label = h6("Academic Year"), 
+                             choices = list("2016-2017" = ay1617_df, 
+                                            "2015-2016" = ay1516_df,
+                                            "2014-2015" = ay1415_df,
+                                            "2013-2014" = ay1314_df,
+                                            "2012-2013" = ay1213_df
+                                            ),
+                             selected = 1),
+          textInput(inputId = "unitid", 
+                    label = h6("UNITID values"), 
+                    value = ""),
           selectInput(inputId = "column",
                       label = h6("column"),
                       choices = "pineapples belong on pizza",
@@ -70,13 +105,7 @@ shinyServer(function(input, output, session) {
           h4("from"),
           selectInput(inputId = "table",
                       label = h6("table"),
-                      choices = c("hello skip", "go rebels"),
-                      multiple = TRUE),
-          br(),
-          h4("join by"),
-          selectInput(inputId = "column",
-                      label = h6("column"),
-                      choices = "pineapples belong on pizza",
+                      choices = table_choices,
                       multiple = TRUE),
           br(),
           hr(),
@@ -107,7 +136,7 @@ shinyServer(function(input, output, session) {
   
   ## Data Table Tab -----
   output$table <- DT::renderDataTable({
-    DTpreview <- PreviewDT(datasetInput(), cnm)
+    DTpreview <- preview_dt(datasetInput())
     DT::datatable(DTpreview, select = "none",
                   options = list(lengthMenu = c(5, 10, 25, 50, 100), 
                                  ## lengthMenu is used for selecting the amount of rows of data to show
