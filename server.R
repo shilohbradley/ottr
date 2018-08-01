@@ -18,10 +18,6 @@ library(magrittr)
 library(reshape2)
 library(RODBC)
 
-## Load sources -----
-# source("load_data.R")
-# source("queries.R")
-
 ## Load data -----
 # ay1213_df <- odbcConnectAccess2007("IPEDS201213.accdb")
 # ay1314_df <- odbcConnectAccess2007("IPEDS201314.accdb")
@@ -35,13 +31,59 @@ ay1516_df <- "quack"
 ay1617_df <- "hello"
 
 # table_choices <- unique(ay1617_df$vartable16)
+# columns_choices <- unique(table_choices$valueSets16)
 table_choices <- list("woof", "bark")
+column_choices <- list("woof", "meow")
 
 ## Functions -----
 preview_dt <- function(df) {
 
   return(df)
 }
+
+R_vector_to_SQL_vector <- function(v)
+{
+  my_str <- paste0("(", v[1])
+  for (i in v[2:length(v)]) {
+    my_str <- paste(my_str, i, sep = ",")
+  }
+  my_str <- paste0(my_str, ")")
+  return(my_str)
+}
+
+## A basic, generic query
+# flexible_query <- function(metric, tablename, instnm_table)
+# {
+#   my_q <- paste0("select a.UNITID, a.INSTNM as Institution, b.", metric," as y ",
+#                  "from ", instnm_table, " a ",
+#                  "inner join ", tablename, " b on a.UNITID = b.UNITID ",
+#                  "where a.UNITID in ", R_vector_to_SQL_vector(id_vec), " "
+#   )
+#   my_r <- sqlQuery(channel = ay1617_df, my_q)
+#   return(my_r)
+# }
+
+## Load Peer Institutions ---
+my_peers <- read.csv("report_peers.csv", header = TRUE, stringsAsFactors = FALSE)
+id_vec <- as.numeric(my_peers[ ,1])
+
+id_self <- id_vec[1]
+
+## Load Report Metrics from csv file ---
+my_report_metrics <- read.csv("report_metrics.csv", header = TRUE, stringsAsFactors = FALSE)
+
+report_list <- list()
+
+## Query metrics from Database ---
+# for (i in 2:nrow(my_report_metrics)) {
+#   i_r <- flexible_query(metric = my_report_metrics$Metric[i],
+#                         tablename = my_report_metrics$Table[i],
+#                         instnm_table = my_report_metrics$Table[1])
+#   
+#   i_r <- i_r[match(id_vec, as.numeric(as.character(i_r$UNITID))), ]
+#   report_list[[i]] <- i_r
+# }
+
 
 ## Beginning of server -----
 shinyServer(function(input, output, session) {
@@ -54,7 +96,7 @@ shinyServer(function(input, output, session) {
    
   ## From: https://gist.github.com/psychemedia/9737637
   filedata <- reactive({
-    infile <- input$datafile
+    infile <- input$control_file
     if (is.null(infile)) {
       # User has not uploaded a file yet
       return(NULL)
@@ -79,7 +121,7 @@ shinyServer(function(input, output, session) {
         sidebarPanel(
           ## Subsetting options 
           h4("Upload"), br(),
-          fileInput(inputId = "", 
+          fileInput(inputId = "control_file", 
                     label = h6("Choose CSV file"),
                     accept = c("text/csv", 
                                "text/comma-separated-values,text/plain")),
@@ -93,14 +135,14 @@ shinyServer(function(input, output, session) {
                                             "2014-2015" = ay1415_df,
                                             "2013-2014" = ay1314_df,
                                             "2012-2013" = ay1213_df
-                                            ),
-                             selected = 1),
+                                            )
+                             ),
           textInput(inputId = "unitid", 
                     label = h6("UNITID values"), 
                     value = ""),
           selectInput(inputId = "column",
                       label = h6("column"),
-                      choices = "pineapples belong on pizza",
+                      choices = column_choices,
                       multiple = TRUE),
           h4("from"),
           selectInput(inputId = "table",
