@@ -37,7 +37,7 @@ column_choices <- list("woof", "meow")
 
 ## Functions -----
 preview_dt <- function(df) {
-
+  
   return(df)
 }
 
@@ -64,21 +64,19 @@ R_vector_to_SQL_vector <- function(v)
 # }
 
 ## Load Peer Institutions ---
-my_peers <- read.csv("report_peers.csv", header = TRUE, stringsAsFactors = FALSE)
-id_vec <- as.numeric(my_peers[ ,1])
-
-id_self <- id_vec[1]
+# my_peers <- read.csv("report_peers.csv", header = TRUE, stringsAsFactors = FALSE)
+# id_vec <- as.numeric(my_peers[ ,1])
+# id_self <- id_vec[1]
 
 ## Load Report Metrics from csv file ---
-my_report_metrics <- read.csv("report_metrics.csv", header = TRUE, stringsAsFactors = FALSE)
-
-report_list <- list()
+# my_report_metrics <- read.csv("report_metrics.csv", header = TRUE, stringsAsFactors = FALSE)
+# report_list <- list()
 
 ## Query metrics from Database ---
-# for (i in 2:nrow(my_report_metrics)) {
-#   i_r <- flexible_query(metric = my_report_metrics$Metric[i],
-#                         tablename = my_report_metrics$Table[i],
-#                         instnm_table = my_report_metrics$Table[1])
+# for (i in 2:nrow(control_file)) {
+#   i_r <- flexible_query(metric = control_file$Metric[i],
+#                         tablename = control_file$Table[i],
+#                         instnm_table = control_file$Table[1])
 #   
 #   i_r <- i_r[match(id_vec, as.numeric(as.character(i_r$UNITID))), ]
 #   report_list[[i]] <- i_r
@@ -98,8 +96,7 @@ shinyServer(function(input, output, session) {
   filedata <- reactive({
     infile <- input$control_file
     if (is.null(infile)) {
-      # User has not uploaded a file yet
-      return(NULL)
+      return(NULL)              ## User has not uploaded a file yet
     }
     read.csv(infile$datapath)
   })
@@ -130,12 +127,11 @@ shinyServer(function(input, output, session) {
           h4("Select"), br(), 
           checkboxGroupInput(inputId = "ay", 
                              label = h6("Academic Year"), 
-                             choices = list("2016-2017" = ay1617_df, 
-                                            "2015-2016" = ay1516_df,
-                                            "2014-2015" = ay1415_df,
+                             choices = list("2012-2013" = ay1213_df,
                                             "2013-2014" = ay1314_df,
-                                            "2012-2013" = ay1213_df
-                                            )
+                                            "2014-2015" = ay1415_df,
+                                            "2015-2016" = ay1516_df,
+                                            "2016-2017" = ay1617_df)
                              ),
           textInput(inputId = "unitid", 
                     label = h6("UNITID values"), 
@@ -164,11 +160,9 @@ shinyServer(function(input, output, session) {
         mainPanel(
           ## View the subsetted options into two tabs - Table and Preview report
           tabsetPanel(type = "tabs",
-                      ## Table
-                      tabPanel("Data table", class = "one",
+                      tabPanel("Data table", class = "one",      ## Table
                                DT::dataTableOutput("table")),
-                      ## Report preview
-                      tabPanel("Preview Report", class = "one",
+                      tabPanel("Preview Report", class = "one",  ## Report preview
                                uiOutput("report"))
           ) ## End of Tabset Panel
         ) ## End of Main panel
@@ -178,12 +172,10 @@ shinyServer(function(input, output, session) {
   
   ## Data Table Tab -----
   output$table <- DT::renderDataTable({
-    DTpreview <- preview_dt(datasetInput())
-    DT::datatable(DTpreview, select = "none",
-                  options = list(lengthMenu = c(5, 10, 25, 50, 100), 
-                                 ## lengthMenu is used for selecting the amount of rows of data to show
-                                 pageLength = 5),
-                  ## pageLength is the default length, currently 5
+    DT::datatable(preview_dt(datasetInput()), 
+                  select = "none",
+                  options = list(lengthMenu = c(5, 10, 25, 50, 100), ## lengthMenu is used for selecting the amount of rows of data to show
+                                 pageLength = 5),                    ## pageLength is the default length, currently 5
                   rownames = FALSE)
   })
   
