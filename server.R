@@ -18,37 +18,26 @@ library(magrittr)
 library(reshape2)
 library(RODBC)
 
-## Functions -----
-preview_dt <- function(df) {
-  
-  return(df)
-}
-
-R_vector_to_SQL_vector <- function(v)
-{
-  my_str <- paste0("(", v[1])
-  for (i in v[2:length(v)]) {
-    my_str <- paste(my_str, i, sep = ",")
-  }
-  my_str <- paste0(my_str, ")")
-  return(my_str)
-}
+## Load sources -----
+# source("load_data.R")
+source("functions.R")
+# source("queries.R")
 
 ## Beginning of server -----
 shinyServer(function(input, output, session) {
-  
-  ## Subsetting options
-  datasetInput <- reactive({
- 
-  })
-  
+
   ## Read .csv file
   filedata <- reactive({
     infile <- input$control_file
     if (is.null(infile)) {
       return(NULL)
     }
-    read.csv(infile$datapath)
+    df_subset_options <- read.csv(infile$datapath)
+  })
+  
+  ## Subsetting options
+  datasetInput <- reactive({
+    # df <- df[df$State %in% input$control_file, ]
   })
   
   ## Beginning of main body -----
@@ -59,7 +48,6 @@ shinyServer(function(input, output, session) {
       br(), br(),
       titlePanel("IPEDS Peer Reports"), br(),
       h3("Supported by the University of Nevada, Las Vegas"), br(),
-      h5(paste0("Last updated on:"), Sys.Date()),
       br(), br(),
       br(), br(), 
       
@@ -69,17 +57,25 @@ shinyServer(function(input, output, session) {
           ## Subsetting options 
           h4("Upload"), br(),
           fileInput(inputId = "control_file", 
-                    label = h6("Choose CSV file"),
+                    label = h6("Choose file to subset the data"),
                     accept = c("text/csv", 
-                               "text/comma-separated-values,text/plain")),
+                               "text/comma-separated-values,text/plain")
+                    ),
           hr(),
           br(),
           
           ## Download options for subsetted data 
-          downloadButton("download_data", 
-                         h5("Download Data")),
-          downloadButton("download_report", 
-                         h5("Download Report")),
+          h4("Download Results"), br(),
+          div(style = "display: inline-block;", 
+              downloadButton("download_data", 
+                              h5("Data")
+                            )
+              ),
+          div(style = "display: inline-block;", 
+              downloadButton("download_report",                      
+                              h5("Report")
+                             )
+              ),
           br(), br()
         ), 
         ## End of side bar
@@ -89,18 +85,20 @@ shinyServer(function(input, output, session) {
           ## View the subsetted options into two tabs - Table and Preview report
           tabsetPanel(type = "tabs",
                       tabPanel("Data table", class = "one",      ## Table
-                               DT::dataTableOutput("table")),
+                               dataTableOutput("table")
+                               ),
                       tabPanel("Preview Report", class = "one",  ## Report preview
-                               uiOutput("report"))
-          ) ## End of Tabset Panel
-        ) ## End of Main panel
-      ) ## End of Sidebar Layout
-    ) ## End of Fluid Page
-  }) ## End of Main body
+                               uiOutput("report")
+                               )
+                      ) ## End of Tabset Panel
+                  ) ## End of Main panel
+              ) ## End of Sidebar Layout
+          ) ## End of Fluid Page
+      }) ## End of Main body
   
   ## Data Table Tab -----
-  output$table <- DT::renderDataTable({
-    DT::datatable(preview_dt(datasetInput()), 
+  output$table <- renderDataTable({
+        datatable(datasetInput(), 
                   select = "none",
                   options = list(lengthMenu = c(5, 10, 25, 50, 100), ## lengthMenu is used for selecting the amount of rows of data to show
                                  pageLength = 5),                    ## pageLength is the default length, currently 5
@@ -112,17 +110,11 @@ shinyServer(function(input, output, session) {
   output$report <- renderUI({
     tagList(
       ## Suppress warning messages  
-      tags$style(type="text/css",
+      tags$style(type = "text/css",
                  ".shiny-output-error { visibility: hidden; }",
                  ".shiny-output-error:before { visibility: hidden; }"
                 )
           )
-  })
-  
-  output$plot <- renderPlot({
-    if(nrow(datasetInput()) > 1 && length(input$questions) >= 1) {
-      testQ(datasetInput())
-    }
   })
   
 

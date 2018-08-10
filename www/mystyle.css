@@ -1,7 +1,7 @@
 body {
     background-color: #ffffff;
-    background: #ffffff url("color-gray1.jpg") no-repeat right top;
-    background-size: 100% 30%;
+    background: #ffffff url("header.png") no-repeat right top;
+    background-size: 100% 50%;
     color: #444444;
     font-family: 'Arial', sans-serif;
 }
